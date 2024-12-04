@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Mouse Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Mouse Tracker</h1>
+    <p>Move inside the box</p>
+    <div id="tracker-box">
+        <div id="position">
+            <span id="x">X: 0</span>
+            <span id="y">Y: 0</span>
+        </div>
+    </div>
+
+    <!-- Left and Right Click Buttons -->
+    <div id="click-buttons">
+        <button id="left-click">Left Click</button>
+        <button id="right-click">Right Click</button>
+    </div>
+</div>
+
+<script>
+    const trackerBox = document.getElementById('tracker-box');
+    const xPos = document.getElementById('x');
+    const yPos = document.getElementById('y');
+
+    // Create a WebSocket connection to the server
+    const ws = new WebSocket('ws://192.168.1.14:8765'); // Replace with your server IP and port
+
+    // Handle WebSocket open, error, and close events
+    ws.onopen = () => console.log("Connected to WebSocket server");
+    ws.onerror = (error) => console.error('WebSocket Error:', error);
+    ws.onclose = () => console.log("WebSocket connection closed");
+
+    // Throttle updates to ~60 updates per second
+    let lastUpdate = 0;
+
+    function throttleUpdatePosition(x, y) {
+        const now = Date.now();
+        if (now - lastUpdate > 16) { // ~60 FPS (1000ms / 60)
+            updateDisplay(x, y);
+            sendCoordinates(x, y);
+            lastUpdate = now;
+        }
+    }
+
+    // Update the displayed position on the screen
+    function updateDisplay(x, y) {
+        xPos.textContent = `X: ${Math.round(x)}`;
+        yPos.textContent = `Y: ${Math.round(y)}`;
+    }
+
+    // Send JSON-encoded coordinates to the WebSocket server
+    function sendCoordinates(x, y) {
+        if (ws.readyState === WebSocket.OPEN) {
+            const data = {x: Math.round(x), y: Math.round(y)}; // Use JSON format
+            ws.send(JSON.stringify(data)); // Send JSON string
+        }
+    }
+
+    // Listen for mouse movement inside the tracker box
+    trackerBox.addEventListener('mousemove', (event) => {
+        const rect = trackerBox.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        throttleUpdatePosition(x, y);
+    });
+
+    // Listen for touch movement inside the tracker box
+    trackerBox.addEventListener('touchmove', (event) => {
+        event.preventDefault(); // Prevent scrolling while tracking touch movement
+        const rect = trackerBox.getBoundingClientRect();
+        const touch = event.touches[0]; // Get the first touch point
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        throttleUpdatePosition(x, y);
+    });
+
+    // Left Click Button
+    document.getElementById('left-click').addEventListener('click', () => {
+        fetch('http://192.168.1.14:5000/left_click', {
+            method: 'GET',
+        })
+                .then(response => response.json())
+                .then(data => console.log('Left Click Request Successful:', data))
+                .catch(error => console.error('Error:', error));
+    });
+
+    // Right Click Button
+    document.getElementById('right-click').addEventListener('click', () => {
+        fetch('http://192.168.1.14:5000/right_click', {
+            method: 'GET',
+        })
+                .then(response => response.json())
+                .then(data => console.log('Right Click Request Successful:', data))
+                .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+</html>
