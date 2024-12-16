@@ -6,17 +6,16 @@ from pynput.mouse import Controller
 from screeninfo import get_monitors
 
 mouse = Controller()
-monitor = get_monitors()[0]  # Assumes a single monitor setup
+monitor = get_monitors()[0]
 screen_width = monitor.width
 screen_height = monitor.height
 
 
 def move_cursor(x, y):
-    mouse.position = (x, y)  # Directly set the cursor position
+    mouse.position = (x, y)
     print(x, y)
 
 
-# WebSocket handler
 async def move_cursor_server(websocket):
     print(f"Client connected: {websocket.remote_address}")
 
@@ -26,7 +25,7 @@ async def move_cursor_server(websocket):
             data = json.loads(message)
             x, y = data['x'], data['y']
             newX = int(x * screen_width / 300)
-            newY = int(y * screen_height / 400)
+            newY = int(y * screen_height / 300)
             move_cursor(newX, newY)
     except websockets.exceptions.ConnectionClosed:
         print(f"Client disconnected: {websocket.remote_address}")
@@ -34,9 +33,8 @@ async def move_cursor_server(websocket):
         print(f"Error: {e}")
 
 
-# Start the WebSocket server
 if __name__ == "__main__":
-    server_address = "192.168.1.14"  # Replace with your server IP
+    server_address = "172.20.10.5"  # Replace with your server IP
     server_port = 8765
     start_server = websockets.serve(move_cursor_server, server_address, server_port)
 
