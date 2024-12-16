@@ -12,10 +12,11 @@
     <p>Move inside the box</p>
     <div id="tracker-box">
         <div id="position">
-            <span id="x">X: 0</span>
-            <span id="y">Y: 0</span>
+            <span id="x"></span>
+            <span id="y"></span>
         </div>
     </div>
+
 
     <!-- Left and Right Click Buttons -->
     <div id="click-buttons">
@@ -25,12 +26,13 @@
 </div>
 
 <script>
+    const serverAddress = "172.20.10.5";
     const trackerBox = document.getElementById('tracker-box');
     const xPos = document.getElementById('x');
     const yPos = document.getElementById('y');
 
     // Create a WebSocket connection to the server
-    const ws = new WebSocket('ws://192.168.1.14:8765'); // Replace with your server IP and port
+    const ws = new WebSocket(`ws://${serverAddress}:8765`);
 
     // Handle WebSocket open, error, and close events
     ws.onopen = () => console.log("Connected to WebSocket server");
@@ -40,11 +42,23 @@
     // Throttle updates to ~60 updates per second
     let lastUpdate = 0;
 
+    // Create the pointer dot and append it to the tracker box
+    const pointer = document.createElement('div');
+    pointer.id = 'pointer';
+    trackerBox.appendChild(pointer);
+
+    // move the pointer
+    function movePointer(x, y) {
+        pointer.style.left = `${x}px`;
+        pointer.style.top = `${y}px`;
+    }
+
     function throttleUpdatePosition(x, y) {
         const now = Date.now();
-        if (now - lastUpdate > 16) { // ~60 FPS (1000ms / 60)
-            updateDisplay(x, y);
+        if (now - lastUpdate > 10) { // ~60 FPS (1000ms / 60)
+            // updateDisplay(x, y);
             sendCoordinates(x, y);
+            movePointer(x, y); // Move the pointer
             lastUpdate = now;
         }
     }
@@ -83,7 +97,7 @@
 
     // Left Click Button
     document.getElementById('left-click').addEventListener('click', () => {
-        fetch('http://192.168.1.14:5000/left_click', {
+        fetch(`http://${serverAddress}:5000/left_click`, {
             method: 'GET',
         })
                 .then(response => response.json())
@@ -93,7 +107,7 @@
 
     // Right Click Button
     document.getElementById('right-click').addEventListener('click', () => {
-        fetch('http://192.168.1.14:5000/right_click', {
+        fetch(`http://${serverAddress}:5000/right_click`, {
             method: 'GET',
         })
                 .then(response => response.json())
