@@ -22,19 +22,27 @@ frontend to track mouse movements and handle click events.
 You can install the necessary Python libraries using `pip`:
 
 ```bash
-  pip install -r requirements.txt
+pip install -r requirements.txt
 ```
-
+## How to run Project?
+```bash
+python app.py
+```
+```bash
+python move.py
+```
 
 ## Flask Backend
 
 The `Flask` application serves the HTML page and has two endpoints:
-`/`: Renders the main page.
-`/left_click` and `/right_click`: Simulate left and right mouse clicks using the `pynput` library.
+
+- `/`: Renders the main page.
+- `/left_click` and `/right_click`: Simulate left and right mouse clicks using the `pynput` library.
 
 ## WebSocket Server
 
-The `WebSocket` server listens for incoming messages that contain `x` and `y` coordinates, then adjusts the mouse position
+The `WebSocket` server listens for incoming messages that contain `x` and `y` coordinates, then adjusts the mouse
+position
 based on those values. It resizes the coordinates to match the system's screen resolution.
 
 ## Frontend (HTML + JavaScript)
