@@ -43,8 +43,10 @@ body {
 #tracker-box {
     width: 300px;
     height: 300px;
-    background: rgba(255, 255, 255, 0.2);
+    /*background: rgba(255, 255, 255, 0.2);*/
     border: 2px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(18, 21, 22, 0.2);
+    border-color: rgba(55, 61, 64, 0.5);
     border-radius: 10px;
     position: relative;
     margin: 0 auto;
@@ -52,6 +54,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+
 }
 
 /* Position text */
@@ -112,4 +115,16 @@ body {
 
 #right-click:hover {
     background: linear-gradient(135deg, #8bc34a, #4caf50); /* Reversed green gradient */
+}
+
+/* Pointer dot */
+#pointer {
+    width: 10px;
+    height: 10px;
+    background-color: #ff5722; /* Orange color for visibility */
+    border-radius: 50%;
+    position: absolute;
+    pointer-events: none; /* Prevent interfering with mouse events */
+    transform: translate(-50%, -50%); /* Center the dot at the cursor */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
